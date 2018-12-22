@@ -9,13 +9,18 @@
 import Foundation
 
 struct PhotoInfo: Codable {
+    
     var url: URL
+    var title: String
     var description: String
     var copyright: String?
+    var media: String
     
     enum CodingKeys: String, CodingKey {
+        case description = "explanation"
         case url
-        case description
         case copyright
+        case title
+        case media = "media_type"
     }
 }

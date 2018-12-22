@@ -10,6 +10,7 @@ import UIKit
 
 class ViewController: UIViewController {
     
+    let controller = PhotoController()
     
     @IBOutlet weak var image: UIImageView!
     @IBOutlet weak var copyrightLabel: UILabel!
@@ -19,9 +20,41 @@ class ViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        UIApplication.shared.isNetworkActivityIndicatorVisible = true
+        controller.fetchPhoto { (photo) in
+            if let photo = photo {
+                self.updateUI(with: photo)
+            }
+        }
         
     }
-
+    
+    
+    func updateUI(with photoInfo: PhotoInfo) {
+        
+        let imageTask = URLSession.shared.dataTask(with: photoInfo.url) {
+            (data, response, error) in
+            if let data = data, let image = UIImage(data: data) {
+                DispatchQueue.main.async {
+                    self.image.image = image
+                    self.imageDescription.text = photoInfo.description
+                    self.title = photoInfo.title
+                    
+                    if let copyright = photoInfo.copyright {
+                        self.copyrightLabel.text = copyright
+                    } else {
+                        self.copyrightLabel.isHidden = true
+                    }
+                    
+                    UIApplication.shared.isNetworkActivityIndicatorVisible = false
+                }
+            } else {
+                print("Could not fetch image data")
+            }
+        }
+        
+        imageTask.resume()
+    }
 
 }
 
